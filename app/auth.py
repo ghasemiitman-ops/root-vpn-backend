@@ -17,8 +17,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
-from . import models
-from .database import get_db
+from app import models
+from app.database import get_db
 
 # در محیط واقعی این رو حتماً از یه environment variable بخون، نه هاردکد تو کد
 SECRET_KEY = os.getenv("JWT_SECRET", "CHANGE_ME_before_going_to_production")
