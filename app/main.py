@@ -19,8 +19,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, Field
 
-from . import models, auth, devices, pricing
-from .database import engine, get_db
+from app import models, auth, devices, pricing
+from app.database import engine, get_db
 
 models.Base.metadata.create_all(bind=engine)
 
