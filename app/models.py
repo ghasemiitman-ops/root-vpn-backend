@@ -2,9 +2,14 @@
 models.py
 
 Database schema for Root VPN's backend. Mirrors exactly what the
-user-panel frontend already collects, so nothing needs to be re-designed:
-username/password auth, a cart of devices per order, connection type,
-duration+volume (or unlimited), and a payment receipt per order.
+user-panel frontend already collects: username/password auth, a cart
+of devices per order, connection type, duration+volume (or unlimited),
+and a payment receipt per order.
+
+NOTE: the receipt image is stored directly in the database (as binary
+data), not on the local filesystem. This is required because Vercel's
+serverless functions run on a read-only filesystem -- there's no disk
+to save uploaded files to.
 """
 
 import enum
@@ -12,7 +17,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
-    Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text
+    Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text, LargeBinary
 )
 from sqlalchemy.orm import declarative_base, relationship
 
@@ -95,7 +100,11 @@ class Receipt(Base):
 
     id = Column(String, primary_key=True, default=gen_id)
     order_id = Column(String, ForeignKey("orders.id"), nullable=False, unique=True)
-    file_path = Column(String, nullable=False)
+
+    file_data = Column(LargeBinary, nullable=False)  # actual image bytes, stored in DB
+    content_type = Column(String, nullable=False)    # e.g. 'image/jpeg'
+    filename = Column(String, nullable=True)         # original filename, for display only
+
     uploaded_at = Column(DateTime, default=datetime.utcnow)
 
     order = relationship("Order", back_populates="receipt")
