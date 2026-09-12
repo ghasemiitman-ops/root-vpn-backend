@@ -221,6 +221,8 @@ def my_orders(
             "is_unlimited": o.is_unlimited,
             "volume_gb": o.volume_gb,
             "connection_type": o.connection_type.value,
+            "created_at": o.created_at.isoformat() if o.created_at else None,
+            "approved_at": o.approved_at.isoformat() if o.approved_at else None,
             "devices": [
                 {"device_key": d.device_key, "protocol": d.protocol,
                  "connection_address": d.connection_address}
