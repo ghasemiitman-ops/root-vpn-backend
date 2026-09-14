@@ -12,6 +12,7 @@ DEVICE_CATALOG = {
     "iphone":          {"label": "آیفون",                  "protocol": "L2TP/IPsec"},
     "windows":         {"label": "ویندوز",                 "protocol": "L2TP/IPsec (Shared Key)"},
     "mac":             {"label": "مک",                     "protocol": "WireGuard"},
+    "linux_router":    {"label": "لینوکس / روتر",          "protocol": "OpenVPN"},
 }
 
 
