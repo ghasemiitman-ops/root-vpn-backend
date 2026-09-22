@@ -62,3 +62,20 @@ def get_current_user(
     if user is None:
         raise credentials_error
     return user
+
+
+def get_current_admin(
+    current_user: models.User = Depends(get_current_user),
+) -> models.User:
+    """
+    Same JWT as everyone else -- there's no separate admin login system.
+    This just gates the route behind current_user.is_admin so a normal
+    customer token can never reach /admin/* endpoints, even if they guess
+    the URL or replay a captured request.
+    """
+    if not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="این بخش فقط برای مدیر سیستم در دسترسه",
+        )
+    return current_user
