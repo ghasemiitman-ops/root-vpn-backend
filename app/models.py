@@ -10,6 +10,16 @@ NOTE: the receipt image is stored directly in the database (as binary
 data), not on the local filesystem. This is required because Vercel's
 serverless functions run on a read-only filesystem -- there's no disk
 to save uploaded files to.
+
+NOTE on is_admin: this column was added after the `users` table already
+existed in production. `Base.metadata.create_all()` only creates missing
+TABLES, it never ALTERs an existing table to add a new column. So this
+change alone does nothing on the live Render database until you run:
+
+    ALTER TABLE users ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT FALSE;
+
+See MIGRATION.sql for the full one-time setup (adds the column + promotes
+the first admin account).
 """
 
 import enum
@@ -34,6 +44,7 @@ class User(Base):
     id = Column(String, primary_key=True, default=gen_id)
     username = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
+    is_admin = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     orders = relationship("Order", back_populates="user")
@@ -69,6 +80,10 @@ class Order(Base):
 
     total_price_toman = Column(Float, nullable=False)
     status = Column(Enum(OrderStatus), default=OrderStatus.pending_payment)
+
+    # Free-text note an admin can leave when rejecting an order (e.g. "amount
+    # on receipt doesn't match the total"). Nullable -- most orders won't have one.
+    admin_note = Column(Text, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     approved_at = Column(DateTime, nullable=True)
